@@ -1,0 +1,127 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            {% if messages %}
+            <div class="alert alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                <div{% if message.tags %} class="alert alert-{{ message.tags }}"{% else %} class="alert alert-info"{% endif %}>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if listings_with_bids %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for listing, latest_bid in listings_with_bids.items %}
+                <div class="col">
+                    <div class="card shadow-lg h-100">
+                        
+                        {% if listing.image %}
+                        <img src="{{ listing.image.url }}" class="card-img-top img-fluid rounded" alt="{{ listing.title }}">
+                        {% endif %}
+                        
+                        <div class="card-body d-flex flex-column p-4">
+                            <h3 class="card-title text-primary">{{ listing.title }}</h3>
+                            <p class="card-text text-truncate">{{ listing.description }}</p>
+                            <p class="card-text mt-3">
+                                <strong>
+                                    {% if latest_bid %}
+                                    <span class="text-success">Highest Bidder: {{ latest_bid.user.username }} - ${{ latest_bid.price_bid }}</span>
+                                    {% else %}
+                                    <span class="text-warning">Starting Price: ${{ listing.starting_bid }}</span>
+                                    {% endif %}
+                                </strong>
+                            </p>
+                            <p class="card-text mt-3">
+                                <strong>
+                                    {% if listing.winner %}
+                                        <span class="text-success">Winner is {{ listing.winner.username }}</span>
+                                    {% endif %}
+                                </strong>
+                            </p>
+
+                            {% if close_form %}
+                            <form method="post" class="mt-3">
+                                {% csrf_token %}
+                                {{ close_form.as_p }}
+                                <button type="submit" name="close_auction" class="btn btn-danger w-100">Close Auction</button>
+                            </form>
+                            {% endif %}
+
+                            {% if form %}
+                            <form method="post" class="mt-3">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary w-100">Submit Bid</button>
+                            </form>
+                            {% endif %}
+
+                            {% if user.is_authenticated and user != listing.user %}
+                            <form method="post" action="{% url 'watchlist' listing.id %}" class="mt-3">
+                                {% csrf_token %}
+                                <button type="submit" class="btn w-100 {% if is_in_watchlist %}btn-danger{% else %}btn-success{% endif %}">
+                                    {% if is_in_watchlist %}
+                                    Unfollow
+                                    {% else %}
+                                    Follow
+                                    {% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if commentform %}
+                                {% if user.is_authenticated %}
+                                <form action="{% url 'comment' listing.id %}" method="post" class="mt-3">
+                                    {% csrf_token %}
+                                    {{ commentform.as_p }}
+                                    <button type="submit" class="btn btn-primary w-100">Submit Comment</button>
+                                </form>
+                                {% endif %}
+                            {% endif%}
+                            <div class="mt-4">
+                                {% if all_comments %}
+                                <div class="bg-light p-3 rounded">
+                                    {% for comment in all_comments %}
+                                    <p>{{ comment.content }}</p>
+                                    <p class="text-muted"><small>By {{ comment.user.username }} on {{ comment.created_at }}</small></p>
+                                    <hr>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-muted">
+                                    No comments available.
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                        </div>
+
+                        <div class="card-footer text-muted">
+                            <div class="d-flex justify-content-between">
+                                <span><strong>Listed by:</strong> {{ listing.user.username }}</span>
+                                <span><strong>Category:</strong> {{ listing.category }}</span>
+                            </div>
+                            <div>
+                                <small><strong>Listed on:</strong> {{ listing.created_at }}</small>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                No listings available.
+            </div>
+            {% endif %}
+        
+        </div>
+    </div>
+</div>
+{% endblock %}
