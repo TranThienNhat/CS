@@ -1,0 +1,17 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Wiki:{{title}}
+{% endblock %}
+
+{% block body %}
+    <h1>Search results found for "{{title}}" on Qwiki</h1>
+
+    <ul>
+        {% for entry in entries %}
+            <li><a href="{% url 'entry' entry %}">{{ entry }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <a class="btn btn-primary" href="{% url 'index' %}">Home page</a>
+{% endblock %}

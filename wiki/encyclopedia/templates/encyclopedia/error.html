@@ -1,0 +1,14 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Error: requested page not found: {{title}}
+{% endblock %}
+
+{% block body %}
+    <h1>Error: requested page "{{title}}" was not found</h1>
+    <p> Return to the <a href="{% url 'index' %}">home page</a> to see all available pages.</p>
+
+{% endblock %}
+
+
+
